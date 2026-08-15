@@ -21,7 +21,7 @@ import { TokenPayload } from "google-auth-library";
 import { googleClient } from "../../lib/googleAuth";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
-	const { name, password } = payload;
+	const { name, password, patient : patientData } = payload;
 	const email = payload.email.trim().toLowerCase();
 
 	const isUserExists = await prisma.user.findUnique({
@@ -33,6 +33,43 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 	}
 
 	const hashedPassword = await bcrypt.hash(password, 8);
+
+
+
+	// new line
+	const expirationSeconds = 5 * 60
+
+	const otpKey = `patient-registration-otp:${email}`
+	const otpValue = crypto.randomInt(100000, 1000000).toString();
+
+	await redisClient.set(otpKey, otpValue, {
+		expiration: {
+			type: "EX",
+			value: expirationSeconds
+		}
+	})
+
+	const patientRegistrationKey = `patient-registration-data:${email}`
+	const redisUserDataPayload = {
+		name,
+		email,
+		password: hashedPassword,
+		patient: patientData
+	}
+
+	await redisClient.set(
+		patientRegistrationKey, 
+		JSON.stringify(redisUserDataPayload), 
+		{
+			expiration: {
+				type: "EX",
+				value: expirationSeconds
+			}
+		}
+	)
+
+
+
 
 	const createdUser = await prisma.user.create({
 		data: {
