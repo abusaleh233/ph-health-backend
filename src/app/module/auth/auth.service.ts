@@ -36,8 +36,6 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const hashedPassword = await bcrypt.hash(password, 8);
 
 
-
-	// new line
 	const expirationSeconds = 5 * 60
 
 	const otpKey = `patient-registration-otp:${email}`
