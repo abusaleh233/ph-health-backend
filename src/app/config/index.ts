@@ -37,7 +37,7 @@ export default {
 	bkash_user_name : process.env.BKASH_USER_NAME!,
 	bkash_password : process.env.BKASH_PASSWORD!,
 	bkash_app_key : process.env.BKASH_APP_KEY!,
-	
+	bkash_app_secret : process.env.BKASH_APP_SECRET!,
 	
 
 	
