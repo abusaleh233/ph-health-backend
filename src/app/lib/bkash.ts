@@ -5,10 +5,13 @@ export const getBkashIdToken = async () => {
     try {
         const IdTokenKey="bkash:idToken"
         const RefreshTokenKey="bkash:refreshToken"
+        
         let bkashIdToken = await redisClient.get(IdTokenKey);
+        const bkashIdTokenTTL = await redisClient.ttl(IdTokenKey)
         let bkshRefreshToken = await redisClient.get(RefreshTokenKey);
+        
 
-        if(!bkashIdToken && bkshRefreshToken){
+        if(bkashIdTokenTTL <600 && bkshRefreshToken){
             const RefreshTokenResponse = await fetch(`${config.bkash_base_url}/tokenized/checkout/token/refresh`,{
              method :"POST",
                 headers:{
@@ -25,7 +28,14 @@ export const getBkashIdToken = async () => {
                 });
             const bkshRefreshTokenResult = await RefreshTokenResponse.json()
 
-            bkashIdToken=bkshRefreshTokenResult.id_token
+            bkashIdToken=bkshRefreshTokenResult.id_token as string
+
+            await redisClient.set(IdTokenKey,bkashIdToken,{
+                expiration:{
+                    type:"EX",
+                    value:60*60,
+                }
+            })
 
             return bkashIdToken
         }
