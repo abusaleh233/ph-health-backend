@@ -6,7 +6,6 @@ const router = Router();
 
 router.post(
 	"/apply-as-doctor",
-	// validateRequest(UserValidation.ResetPasswordZodSchema),
 	upload.fields([
 		{
 			name: "resume",

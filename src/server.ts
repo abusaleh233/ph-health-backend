@@ -21,6 +21,8 @@ const main = async () => {
 		await seedTesterAdmin();
 		await seedTesterDoctor();
 
+		await deleteUnverifiedDoctors();
+
 		console.log("Connected to the database successfully.");
 		app.listen(PORT, () => {
 			console.log(`Server is running on port ${PORT}`);
